@@ -26,7 +26,7 @@ config :twitter_demo, TwitterDemoWeb.Endpoint,
       "--mode",
       "development",
       "--watch-stdin",
-      cd: Path.expand("../assets", __DIR__)
+      cd: Path.expand("../", __DIR__)
     ]
   ]
 
