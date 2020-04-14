@@ -1,0 +1,58 @@
+version: 2  # CircleCI Classic ではなく CircleCI 2.0 を使用します
+jobs:  # 1回の実行の基本作業単位
+  build:  # Workflows を使用しない実行では、エントリポイントとして `build` ジョブが必要
+    parallelism: 1  # このジョブのインスタンスを 1つだけ並列実行します
+    docker:  # Docker でステップを実行します
+      - image: circleci/elixir:1.7.3  # このイメージをすべての `steps` が実行されるプライマリコンテナとして使用します
+        environment:  # プライマリコンテナの環境変数
+          MIX_ENV: test
+      - image: circleci/postgres:10.1-alpine  # データベースイメージ
+        environment:  # データベースの環境変数
+          POSTGRES_USER: postgres
+          POSTGRES_DB: app_test
+          POSTGRES_PASSWORD:
+
+    working_directory: ~/app  # ステップが実行されるディレクトリ
+
+    steps:  # `build` ジョブを構成するコマンド
+      - checkout  # ソースコードを作業ディレクトリにチェックアウトします
+
+      - run: mix local.hex --force  # Hex をローカルにインストールします (プロンプトなし)
+      - run: mix local.rebar --force  # rebar のコピーをフェッチします (プロンプトなし)
+
+      - restore_cache:  # 保存されているミックスキャッシュを復元します
+      # 依存関係キャッシュについては https://circleci.com/docs/ja/2.0/caching/ をお読みください
+          keys:  # キャッシュキーのリスト (特定性の高い順)
+            - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+            - v1-mix-cache-{{ .Branch }}
+            - v1-mix-cache
+      - restore_cache:  # 保存されているビルドキャッシュを復元します
+          keys:
+            - v1-build-cache-{{ .Branch }}
+            - v1-build-cache
+      - run: mix do deps.get, compile  # 更新された依存関係を取得してコンパイルします
+      - save_cache:  # ミックスキャッシュを生成して保存します
+          key: v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+          paths: "deps"
+      - save_cache:  # 特定性の低い別のキャッシュを作成します
+          key: v1-mix-cache-{{ .Branch }}
+          paths: "deps"
+      - save_cache:  # 念のためにもう 1つキャッシュを保存しておきます
+          key: v1-mix-cache
+          paths: "deps"
+      - save_cache: # *ビルド* キャッシュも忘れずに保存します
+          key: v1-build-cache-{{ .Branch }}
+          paths: "_build"
+      - save_cache: # ビルドキャッシュを 1つ余分に保存します
+          key: v1-build-cache
+          paths: "_build"
+
+      - run:  # データベースが準備できるまでメインの処理を停止する特殊なユーティリティ
+          name: DB を待機
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+
+      - run: mix test  # プロジェクトのすべてのテストを実行します
+
+      - store_test_results:  # テストサマリーに表示する JUnit テスト結果をアップロードします
+      # 詳しくは https://circleci.com/docs/ja/2.0/collect-test-data/ を参照してください
+          path: _build/test/lib/twitter_demo # アプリの名前に置換します
