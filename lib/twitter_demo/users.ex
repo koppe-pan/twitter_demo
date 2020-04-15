@@ -102,3 +102,4 @@ defmodule TwitterDemo.Users do
     User.changeset(user, %{})
   end
 end
+

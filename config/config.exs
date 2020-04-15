@@ -17,6 +17,11 @@ config :twitter_demo, TwitterDemoWeb.Endpoint,
   render_errors: [view: TwitterDemoWeb.ErrorView, accepts: ~w(html json)],
   pubsub: [name: TwitterDemo.PubSub, adapter: Phoenix.PubSub.PG2]
 
+# Configures Guardian
+config :twitter_demo, TwitterDemo.Guardian,
+  issuer: "twitter_demo",
+  secret_key: "PMe2czX4/ODOUj7VWO/WYsD9IUlGwMgZx8sZOKY0JbmvXgnfR22uOUiBhkbpjNIQ"
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

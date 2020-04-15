@@ -11,7 +11,19 @@ defmodule TwitterDemoWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
-    resources "/users", UserController, except: [:new, :edit]
+  end
+
+  pipeline :authenticated do
+    plug TwitterDemo.Guardian.AuthPipeline
+  end
+
+  scope "/api", TwitterDemoWeb do
+    pipe_through :api
+    post "/sign_in", SessionController, :sign_in
+    resources "/users", UserController, only: [:create]
+
+    pipe_through :authenticated
+    resources "/users", UserController, except: [:new, :create, :edit]
   end
 
   scope "/", TwitterDemoWeb do
@@ -19,9 +31,4 @@ defmodule TwitterDemoWeb.Router do
 
     get "/*path", PageController, :index
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", TwitterDemoWeb do
-  #   pipe_through :api
-  # end
 end

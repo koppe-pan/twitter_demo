@@ -6,9 +6,19 @@ defmodule TwitterDemo.UsersTest do
   describe "users" do
     alias TwitterDemo.Users.User
 
-    @valid_attrs %{email: "some email", introduction: "some introduction", name: "some name", password_hash: "some password_hash"}
-    @update_attrs %{email: "some updated email", introduction: "some updated introduction", name: "some updated name", password_hash: "some updated password_hash"}
-    @invalid_attrs %{email: nil, introduction: nil, name: nil, password_hash: nil}
+    @valid_attrs %{
+      email: "some @email",
+      introduction: "some introduction",
+      name: "some name",
+      password: "S0me p@ssw0rd"
+    }
+    @update_attrs %{
+      email: "some updated @email",
+      introduction: "some updated introduction",
+      name: "some updated name",
+      password: "S0me upd@ted p@ssw0rd"
+    }
+    @invalid_attrs %{email: nil, introduction: nil, name: nil, password: nil}
 
     def user_fixture(attrs \\ %{}) do
       {:ok, user} =
@@ -20,21 +30,25 @@ defmodule TwitterDemo.UsersTest do
     end
 
     test "list_users/0 returns all users" do
-      user = user_fixture()
+      user = %{user_fixture() | password: nil}
       assert Users.list_users() == [user]
     end
 
     test "get_user!/1 returns the user with given id" do
-      user = user_fixture()
+      user = %{user_fixture() | password: nil}
       assert Users.get_user!(user.id) == user
     end
 
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} = Users.create_user(@valid_attrs)
-      assert user.email == "some email"
+      assert user.email == "some @email"
       assert user.introduction == "some introduction"
       assert user.name == "some name"
-      assert user.password_hash == "some password_hash"
+
+      {:ok, %User{} = temp_user} =
+        User.find_and_confirm_password(@valid_attrs.email, @valid_attrs.password)
+
+      assert user.password_hash == temp_user.password_hash
     end
 
     test "create_user/1 with invalid data returns error changeset" do
@@ -44,14 +58,18 @@ defmodule TwitterDemo.UsersTest do
     test "update_user/2 with valid data updates the user" do
       user = user_fixture()
       assert {:ok, %User{} = user} = Users.update_user(user, @update_attrs)
-      assert user.email == "some updated email"
+      assert user.email == "some updated @email"
       assert user.introduction == "some updated introduction"
       assert user.name == "some updated name"
-      assert user.password_hash == "some updated password_hash"
+
+      {:ok, %User{} = temp_user} =
+        User.find_and_confirm_password(@update_attrs.email, @update_attrs.password)
+
+      assert user.password_hash == temp_user.password_hash
     end
 
     test "update_user/2 with invalid data returns error changeset" do
-      user = user_fixture()
+      user = %{user_fixture() | password: nil}
       assert {:error, %Ecto.Changeset{}} = Users.update_user(user, @invalid_attrs)
       assert user == Users.get_user!(user.id)
     end

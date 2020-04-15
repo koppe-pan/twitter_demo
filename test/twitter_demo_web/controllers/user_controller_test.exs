@@ -5,18 +5,18 @@ defmodule TwitterDemoWeb.UserControllerTest do
   alias TwitterDemo.Users.User
 
   @create_attrs %{
-    email: "some email",
+    email: "some @email",
     introduction: "some introduction",
     name: "some name",
-    password_hash: "some password_hash"
+    password: "S0me p@ssw0rd"
   }
   @update_attrs %{
-    email: "some updated email",
+    email: "some updated @email",
     introduction: "some updated introduction",
     name: "some updated name",
-    password_hash: "some updated password_hash"
+    password: "S0me upd@ted p@ssw0rd"
   }
-  @invalid_attrs %{email: nil, introduction: nil, name: nil, password_hash: nil}
+  @invalid_attrs %{email: nil, introduction: nil, name: nil, password: nil}
 
   def fixture(:user) do
     {:ok, user} = Users.create_user(@create_attrs)
@@ -41,12 +41,14 @@ defmodule TwitterDemoWeb.UserControllerTest do
 
       conn = get(conn, Routes.user_path(conn, :show, id))
 
+      {:ok, %User{} = temp_user} =
+        User.find_and_confirm_password(@create_attrs.email, @create_attrs.password)
+
       assert %{
                "id" => id,
-               "email" => "some email",
+               "email" => "some @email",
                "introduction" => "some introduction",
-               "name" => "some name",
-               "password_hash" => "some password_hash"
+               "name" => "some name"
              } = json_response(conn, 200)["data"]
     end
 
@@ -65,12 +67,14 @@ defmodule TwitterDemoWeb.UserControllerTest do
 
       conn = get(conn, Routes.user_path(conn, :show, id))
 
+      {:ok, %User{} = temp_user} =
+        User.find_and_confirm_password(@update_attrs.email, @update_attrs.password)
+
       assert %{
                "id" => id,
-               "email" => "some updated email",
+               "email" => "some updated @email",
                "introduction" => "some updated introduction",
-               "name" => "some updated name",
-               "password_hash" => "some updated password_hash"
+               "name" => "some updated name"
              } = json_response(conn, 200)["data"]
     end
 
