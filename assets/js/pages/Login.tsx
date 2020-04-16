@@ -26,20 +26,23 @@ export default class LoginPage extends React.Component <Props & RouteComponentPr
   event: Event;
 
   updateUserName = (event: any) => {
-    this.setState({ username: event.detail.value });
+    event.persist()
+    this.setState({ username: event.target.value});
   };
 
-   updatePassword = (event: any) => {
-     this.setState({ password: event.detail.value });
-   };
+  updatePassword = (event: any) => {
+    event.persist()
+    this.setState({ password: event.target.value});
+  };
 
-   updateEmail = (event: any) => {
-     this.setState({ email: event.detail.value });
-   };
+  updateEmail = (event: any) => {
+    event.persist()
+    this.setState({ email: event.target.value});
+  };
 
-   toggleAction = () => {
-     this.state.action === 'Login' ? this.setState({action: 'SignUp'}) : this.setState({action: 'Login'})
-   }
+  toggleAction = () => {
+    this.state.action === 'Login' ? this.setState({action: 'SignUp'}) : this.setState({action: 'Login'})
+  }
 
   componentDidMount(){
     this.clearCredentials();
@@ -101,6 +104,7 @@ export default class LoginPage extends React.Component <Props & RouteComponentPr
     })
     .then(
       (result) => {
+        localStorage.setItem("token", result.token);
         localStorage.setItem("username", result.data.name);
         localStorage.setItem("isLogin", "true");
         localStorage.setItem("email", result.data.email);
@@ -120,7 +124,7 @@ export default class LoginPage extends React.Component <Props & RouteComponentPr
   public render(): JSX.Element {
     return (
       <Main>
-        <h1>Log In</h1>
+        <h1>{this.state.action === 'Login'? 'Login' : 'SignUp'}</h1>
         <p>
           This component demonstrates fetching data from the Phoenix API
           endpoint.
