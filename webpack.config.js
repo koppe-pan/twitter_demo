@@ -31,6 +31,18 @@ module.exports = (env, options) => ({
       {
         test: /\.css$/,
         use: [MiniCssExtractPlugin.loader, 'css-loader']
+      },
+      {
+        test: /\.(png|jpg|gif)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+            //ここ追加
+            name: '[path][name].[ext]'
+            }  
+          }
+        ]
       }
     ]
   },

@@ -1,20 +1,17 @@
-import * as React from 'react'
+import React from 'react';
+import { IonToolbar, IonTitle,  IonHeader, IonMenuButton } from '@ionic/react';
 
-const Header: React.FC = () => (
-  <header>
-    <section className="container">
-      <nav role="navigation">
-        <ul>
-          <li>
-            <a href="https://hexdocs.pm/phoenix/overview.html">Get Started</a>
-          </li>
-        </ul>
-      </nav>
-      <a href="http://phoenixframework.org/" className="phx-logo">
-        <img src="/images/phoenix.png" alt="Phoenix Framework Logo" />
-      </a>
-    </section>
-  </header>
-)
+class Header extends React.Component<any,any> {
+    render() {   
+        return (  
+         <IonHeader>
+          <IonToolbar >
+          <IonTitle  class="header"  color="success">{this.props.title}</IonTitle>           
+            <IonMenuButton slot="start"></IonMenuButton>      
+          </IonToolbar>
+        </IonHeader> 
 
+        )
+    }
+}
 export default Header

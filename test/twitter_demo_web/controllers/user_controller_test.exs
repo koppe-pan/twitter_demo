@@ -24,13 +24,27 @@ defmodule TwitterDemoWeb.UserControllerTest do
   end
 
   setup %{conn: conn} do
-    {:ok, conn: put_req_header(conn, "accept", "application/json")}
+    conn =
+      conn
+      |> put_req_header("accept", "application/json")
+
+    {:ok, conn: conn}
   end
 
   describe "index" do
     test "lists all users", %{conn: conn} do
-      conn = get(conn, Routes.user_path(conn, :index))
-      assert json_response(conn, 200)["data"] == []
+      user = fixture(:user)
+
+      conn =
+        conn
+        |> authorize_user(user)
+        |> get(Routes.user_path(conn, :index))
+
+      assert %{
+               "email" => "some @email",
+               "introduction" => "some introduction",
+               "name" => "some name"
+             } = hd(json_response(conn, 200)["data"])
     end
   end
 
@@ -39,10 +53,14 @@ defmodule TwitterDemoWeb.UserControllerTest do
       conn = post(conn, Routes.user_path(conn, :create), user: @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
-      conn = get(conn, Routes.user_path(conn, :show, id))
-
       {:ok, %User{} = temp_user} =
         User.find_and_confirm_password(@create_attrs.email, @create_attrs.password)
+
+      conn =
+        conn
+        |> recycle()
+        |> authorize_user(temp_user)
+        |> get(Routes.user_path(conn, :show, id))
 
       assert %{
                "id" => id,
@@ -62,7 +80,11 @@ defmodule TwitterDemoWeb.UserControllerTest do
     setup [:create_user]
 
     test "renders user when data is valid", %{conn: conn, user: %User{id: id} = user} do
-      conn = put(conn, Routes.user_path(conn, :update, user), user: @update_attrs)
+      conn =
+        conn
+        |> authorize_user(user)
+        |> put(Routes.user_path(conn, :update, user), user: @update_attrs)
+
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
 
       conn = get(conn, Routes.user_path(conn, :show, id))
@@ -79,7 +101,11 @@ defmodule TwitterDemoWeb.UserControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn, user: user} do
-      conn = put(conn, Routes.user_path(conn, :update, user), user: @invalid_attrs)
+      conn =
+        conn
+        |> authorize_user(user)
+        |> put(Routes.user_path(conn, :update, user), user: @invalid_attrs)
+
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
@@ -88,7 +114,11 @@ defmodule TwitterDemoWeb.UserControllerTest do
     setup [:create_user]
 
     test "deletes chosen user", %{conn: conn, user: user} do
-      conn = delete(conn, Routes.user_path(conn, :delete, user))
+      conn =
+        conn
+        |> authorize_user(user)
+        |> delete(Routes.user_path(conn, :delete, user))
+
       assert response(conn, 204)
 
       assert_error_sent 404, fn ->
@@ -100,5 +130,15 @@ defmodule TwitterDemoWeb.UserControllerTest do
   defp create_user(_) do
     user = fixture(:user)
     {:ok, user: user}
+  end
+
+  defp authorize_user(conn, user) do
+    {:ok, jwt, _full_claims} = TwitterDemo.Guardian.encode_and_sign(user)
+
+    conn =
+      conn
+      |> put_req_header("authorization", "Bearer #{jwt}")
+
+    conn
   end
 end

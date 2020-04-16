@@ -1,0 +1,7 @@
+{
+  "name": "twitter_demo",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "custom"
+}
