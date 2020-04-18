@@ -29,8 +29,8 @@ defmodule TwitterDemoWeb.Router do
     post "/tweets/:id/favorite", TweetController, :favo
 
     get "/profiles/:authorname", ProfileController, :get
-    post "/profiles/:authorname/follow/:id", ProfileController, :follow
-    delete "/profiles/:authorname/unfollow/:id", ProfileController, :unfollow
+    post "/profiles/:authorname/follow/:followername", ProfileController, :follow
+    delete "/profiles/:authorname/unfollow/:followername", ProfileController, :unfollow
 
     pipe_through :authenticated
     resources "/users", UserController, except: [:new, :create, :edit]

@@ -58,8 +58,10 @@ defmodule TwitterDemo.Comments do
 
   """
   def create_comment(%{"author" => author, "tweet_id" => id, "body" => body} = _attrs \\ %{}) do
-    TwitterDemo.Users.get_by_name!(author)
-    |> Ecto.build_assoc(:comments, tweet_id: id)
+    user = TwitterDemo.Users.get_by_name!(author)
+
+    TwitterDemo.Tweets.get_tweet!(id)
+    |> Ecto.build_assoc(:comments, user_id: user.id)
     |> Comment.changeset(%{body: body})
     |> Repo.insert()
   end

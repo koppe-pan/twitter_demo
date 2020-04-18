@@ -46,7 +46,7 @@ class ProfilePage extends React.Component<Props & RouteComponentProps<any>, Stat
   componentDidMount() {
     let profileUrl
     if(localStorage.getItem("isLogin") && localStorage.getItem("isLogin") == "true"){
-      profileUrl = "/api/profiles/" + this.props.match.params.authorname + "?id="+ localStorage.getItem("slug") ;
+      profileUrl = "/api/profiles/" + this.props.match.params.authorname + "/?username=" + localStorage.getItem("username") ;
     }else{
       profileUrl = "/api/profiles/" + this.props.match.params.authorname ;
     }
@@ -74,10 +74,10 @@ class ProfilePage extends React.Component<Props & RouteComponentProps<any>, Stat
     let method;
     if(this.state.isFollowing){
       method = 'DELETE'
-      profileUrl = "/api/profiles/" + this.props.match.params.authorname + '/unfollow'+ localStorage.getItem("slug") ;
+      profileUrl = "/api/profiles/" + this.props.match.params.authorname + '/unfollow/'+ localStorage.getItem("username") ;
     }else{
       method = 'POST'
-      profileUrl = "/api/profiles/" + this.props.match.params.authorname + '/follow/'+ localStorage.getItem("slug") ;
+      profileUrl = "/api/profiles/" + this.props.match.params.authorname + '/follow/'+ localStorage.getItem("username") ;
     }
     fetch(profileUrl, {
       method: method,
@@ -85,11 +85,19 @@ class ProfilePage extends React.Component<Props & RouteComponentProps<any>, Stat
         "Content-Type": "application/json",
         "Authorization": "Bearer "+ localStorage.getItem("token")
       }
-    }).then(res => res.json())
-    .then((res) => {
-      this.setState({
-        isFollowing: !this.state.isFollowing,
-      })
+    }).then((res) => {
+      if(!this.state.isFollowing){
+        this.setState({
+          isFollowing: !this.state.isFollowing,
+        })
+        res.json()
+      }else{
+        if(res.status == 204){
+          this.setState({
+            isFollowing: !this.state.isFollowing,
+          })
+        }
+      }
     })
   }
 

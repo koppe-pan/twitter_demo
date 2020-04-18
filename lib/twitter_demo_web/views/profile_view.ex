@@ -8,22 +8,11 @@ defmodule TwitterDemoWeb.ProfileView do
     ProfileView.render("prof.json", follower: follower)
   end
 
-  def render("get.json", %{user: user}) do
+  def render("get.json", %{profile: profile}) do
     %{
       profile: %{
-        name: user.name,
-        following: false
-      }
-    }
-  end
-
-  def render("get.json", %{user: user, user_id: user_id}) do
-    following = TwitterDemo.Relationship.following?(user_id, user.id)
-
-    %{
-      profile: %{
-        name: user.name,
-        following: following
+        name: profile.name,
+        following: profile.following
       }
     }
   end

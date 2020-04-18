@@ -124,10 +124,10 @@ class TweetPage extends React.Component<Props & RouteComponentProps<any>, State>
               </div>:<p>No Comments</p>}
               <div>
               {localStorage.getItem("isLogin") === "true" ?
-                <form action="">
+                <>
                   <input type="text" onChange={this.updateComment} placeholder="Write a comment" value={this.state.comment}></input>
                   <button onClick={this.addComment}>Add Comment</button>
-                </form>
+                </>
                 : <></>}
               </div>
     </Main>
