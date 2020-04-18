@@ -4,8 +4,8 @@ defmodule TwitterDemo.Comments.Comment do
 
   schema "comments" do
     field :body, :string
-    belongs_to :tweet, EctoAssoc.Tweets
-    belongs_to :user, EctoAssoc.Users
+    belongs_to :tweet, TwitterDemo.Tweets.Tweet
+    belongs_to :user, TwitterDemo.Users.User
 
     timestamps()
   end

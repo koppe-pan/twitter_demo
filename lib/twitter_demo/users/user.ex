@@ -13,6 +13,7 @@ defmodule TwitterDemo.Users.User do
     field :password, :string, virtual: true
     field :password_hash, :string
     has_many :tweets, TwitterDemo.Tweets.Tweet
+    has_many :comments, TwitterDemo.Comments.Comment
 
     # User who follow
     has_many :followed_users, Relationship, foreign_key: :follower_id

@@ -26,7 +26,7 @@ defmodule TwitterDemoWeb.Router do
       resources "/comments", CommentController, except: [:new, :edit]
     end
 
-    get "/tweets/:id/comments", CommentController, :index
+    post "/tweets/:id/favorite", TweetController, :favo
 
     get "/profiles/:authorname", ProfileController, :get
     post "/profiles/:authorname/follow/:id", ProfileController, :follow

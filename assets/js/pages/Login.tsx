@@ -104,7 +104,7 @@ export default class LoginPage extends React.Component <Props & RouteComponentPr
     })
     .then(
       (result) => {
-        localStorage.setItem("token", result.token);
+        localStorage.setItem("token", result.data.token);
         localStorage.setItem("username", result.data.name);
         localStorage.setItem("isLogin", "true");
         localStorage.setItem("email", result.data.email);

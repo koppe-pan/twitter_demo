@@ -34,6 +34,9 @@ class Tweet extends React.Component<Props, State> {
   favoriteTweet = (params: any) => {
     let url = "/api/tweets/" + this.props.slug + '/favorite';
     let method;
+    let body = {
+        "name": localStorage.getItem("username")
+      }
     if(!this.state.favorited) {
       method = 'POST'
     }else{
@@ -44,7 +47,8 @@ class Tweet extends React.Component<Props, State> {
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer " + localStorage.getItem("token"),
-      }
+      },
+      body: JSON.stringify(body)
     })
     .then(res => res.json())
     .then(

@@ -43,6 +43,9 @@ defmodule TwitterDemoWeb.TweetController do
     end
   end
 
+  def favo(conn, %{"id" => id}) do
+  end
+
   def delete(conn, %{"id" => id}) do
     tweet = Tweets.get_tweet!(id)
 

@@ -74,7 +74,7 @@ class ProfilePage extends React.Component<Props & RouteComponentProps<any>, Stat
     let method;
     if(this.state.isFollowing){
       method = 'DELETE'
-      profileUrl = "/api/profiles/" + this.props.match.params.authorname + '/follow'+ localStorage.getItem("slug") ;
+      profileUrl = "/api/profiles/" + this.props.match.params.authorname + '/unfollow'+ localStorage.getItem("slug") ;
     }else{
       method = 'POST'
       profileUrl = "/api/profiles/" + this.props.match.params.authorname + '/follow/'+ localStorage.getItem("slug") ;

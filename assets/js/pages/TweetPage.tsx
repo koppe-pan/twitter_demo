@@ -75,11 +75,12 @@ class TweetPage extends React.Component<Props & RouteComponentProps<any>, State>
     })
   }
   addComment = () => {
-    let url = "/api/tweet/"+ this.props.match.params.slug;
+    let url = "/api/tweets/"+ this.props.match.params.slug;
     let commentUrl = url + '/comments';
     let body = {
       "comment": {
-        "body": this.state.comment
+        "body": this.state.comment,
+        "author": localStorage.getItem("username")
       }
     }
     fetch(commentUrl, {
@@ -92,7 +93,7 @@ class TweetPage extends React.Component<Props & RouteComponentProps<any>, State>
     }).then(res => res.json())
     .then((com) => {
       let newComments = this.state.comments;
-      newComments.push(com.comment);
+      newComments.push(com.data);
       this.setState({comments: newComments, comment: ''})
     })
   }
@@ -118,7 +119,7 @@ class TweetPage extends React.Component<Props & RouteComponentProps<any>, State>
               <div>
                 {this.state.comments.map((art: any, index: number) =>
                   <Comment key={art.id} body={art.body} slug={this.state.tweet.slug} createdAt={art.createdAt}
-                    commentId={art.id} username={art.author.username} onDeleteComment={this.deleteComment}></Comment>
+                    commentId={art.id} username={art.author} onDeleteComment={this.deleteComment}></Comment>
                 )}
               </div>:<p>No Comments</p>}
               <div>

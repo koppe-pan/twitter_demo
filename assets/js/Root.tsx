@@ -7,6 +7,7 @@ import Counter from './components/Counter'
 import LoginPage from './pages/Login';
 import Profile from './pages/Profile';
 import TweetPage from './pages/TweetPage';
+import NewTweet from './pages/NewTweet';
 
 export default class Root extends React.Component {
   public render(): JSX.Element {
@@ -20,6 +21,7 @@ export default class Root extends React.Component {
             <Route exact path="/login" component={LoginPage} />
             <Route path="/profile/:authorname" component={ Profile } />
             <Route path="/tweetpage/:slug" component={ TweetPage } />
+            <Route path="/newtweet" component={ NewTweet } />
           </Switch>
         </BrowserRouter>
       </>

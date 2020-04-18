@@ -12,7 +12,7 @@ defmodule TwitterDemo.Tweets.Tweet do
     field :favorited, :boolean, default: false
     field :favorites, :integer, default: 0
     belongs_to :user, User
-    has_many :comment, TwitterDemo.Comments.Comment
+    has_many :comments, TwitterDemo.Comments.Comment
 
     timestamps()
   end

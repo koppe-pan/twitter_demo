@@ -16,7 +16,7 @@ class Comment extends React.Component<Props, any> {
     super(props);
   }
   deleteComment = (params: any) => {
-    let url = "/api/tweet/" + this.props.slug + '/comments/' + this.props.commentId;
+    let url = "/api/tweets/" + this.props.slug + '/comments/' + this.props.commentId;
     fetch(url, {
       method: 'DELETE',
       headers: {
@@ -24,10 +24,11 @@ class Comment extends React.Component<Props, any> {
         "Authorization": "Bearer "+ localStorage.getItem("token"),
       }
     })
-    .then(res => res.json())
     .then(
       (res) => {
-        this.props.onDeleteComment(this.props.commentId)
+        if(res.status == 204){
+          this.props.onDeleteComment(this.props.commentId)
+        }
       },
 
       (err) => {

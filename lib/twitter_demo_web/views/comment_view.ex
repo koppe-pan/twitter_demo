@@ -11,6 +11,12 @@ defmodule TwitterDemoWeb.CommentView do
   end
 
   def render("comment.json", %{comment: comment}) do
-    %{id: comment.id, body: comment.body}
+    %{
+      id: comment.id,
+      slug: comment.tweet_id,
+      body: comment.body,
+      createdAt: comment.inserted_at,
+      author: TwitterDemo.Users.get_user!(comment.user_id).name
+    }
   end
 end
