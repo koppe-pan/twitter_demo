@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+import '../../css/Tweet.css';
 
 import Main from '../components/Main'
 
@@ -24,14 +25,14 @@ class Tweet extends React.Component<Props, State> {
       favorited: this.props.favorited,
       favoritesCount: this.props.favoritesCount
     }
-    this.routeLink = '/tweet/'+this.props.slug;
+    this.routeLink = '/tweetpage/'+this.props.slug;
     this.profileLink = '/profile/'+this.props.author;
   }
   routeLink: string;
   profileLink: string;
 
   favoriteTweet = (params: any) => {
-    let url = "/tweet/" + this.props.slug + '/favorite';
+    let url = "/api/tweets/" + this.props.slug + '/favorite';
     let method;
     if(!this.state.favorited) {
       method = 'POST'
@@ -71,10 +72,17 @@ class Tweet extends React.Component<Props, State> {
   }
 
   loggedOut(){
-    <>
-      <Link to= {this.profileLink}>{this.props.author}</Link>
-      <Link to= {this.routeLink}>Read More</Link>
-    </>
+    return(
+      <>
+        <div className="author">
+          <Link className="link" to= {this.profileLink}>{this.props.author}</Link>
+          <h2 className="description">{this.props.description}</h2>
+        </div>
+        <div style={{textAlign: "right"}}>
+          <Link className="link" to= {this.routeLink}>Read More</Link>
+        </div>
+      </>
+    )
   }
   render() {
     return (

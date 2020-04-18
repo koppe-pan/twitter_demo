@@ -2,6 +2,7 @@ import * as React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import * as Showdown from "showdown";
 import Comment from '../components/Comment';
+import Main from '../components/Main';
 
 type Props ={
 }
@@ -49,15 +50,15 @@ class TweetPage extends React.Component<Props & RouteComponentProps<any>, State>
     }).then((res) => res.json())
   }
   componentDidMount() {
-    let url = "/tweet/"+ this.props.match.params.slug;
+    let url = "/api/tweets/"+ this.props.match.params.slug;
     let commentUrl = url + '/comments';
     let headers: any;
 
     Promise.all([this.fetchTweet(url), this.fetchTweet(commentUrl)]).then(
       (result) => {
         this.setState({
-          tweet: result[0].tweet,
-          author: result[0].author,
+          tweet: result[0].data.tweet,
+          author: result[0].data.author,
           comments: result[1].comments
         })
       }
@@ -74,7 +75,7 @@ class TweetPage extends React.Component<Props & RouteComponentProps<any>, State>
     })
   }
   addComment = () => {
-    let url = "/articles/"+ this.props.match.params.slug;
+    let url = "/api/tweet/"+ this.props.match.params.slug;
     let commentUrl = url + '/comments';
     let body = {
       "comment": {
@@ -96,23 +97,22 @@ class TweetPage extends React.Component<Props & RouteComponentProps<any>, State>
     })
   }
   viewAuthor = () => {
-    this.props.history.replace('/profile/'+ this.state.author.username)
+    this.props.history.replace('/profile/'+ this.state.author)
   }
 
   render() {
     let tweet = this.state.tweet;
     let author = this.state.author;
     return (
-      <>
+      <Main>
         {tweet.description}
-        <button onClick={this.viewAuthor}>{author.username}</button>
+        <button onClick={this.viewAuthor}> {author} </button>
         {new Intl.DateTimeFormat('en-US', {
           year: 'numeric',
           month: 'long',
           day: '2-digit'
         }).format(new Date(tweet.createdAt ? tweet.createdAt : 0))}
         <hr />
-          <div dangerouslySetInnerHTML={ { __html: this.converter.makeHtml(tweet.body)}}></div>
           <hr className="horizontal-line" />
             {this.state.comments.length > 0 ?
               <div>
@@ -129,7 +129,7 @@ class TweetPage extends React.Component<Props & RouteComponentProps<any>, State>
                 </form>
                 : <></>}
               </div>
-    </>
+    </Main>
   );
   }
 }

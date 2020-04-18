@@ -4,6 +4,7 @@ defmodule TwitterDemo.Users.User do
 
   alias TwitterDemo.Repo
   alias TwitterDemo.Users.User
+  alias TwitterDemo.Relationship
 
   schema "users" do
     field :email, :string
@@ -11,7 +12,15 @@ defmodule TwitterDemo.Users.User do
     field :name, :string
     field :password, :string, virtual: true
     field :password_hash, :string
+    has_many :tweets, TwitterDemo.Tweets.Tweet
 
+    # User who follow
+    has_many :followed_users, Relationship, foreign_key: :follower_id
+    has_many :relationships, through: [:followed_users, :followed_user]
+
+    # Followers the user
+    has_many :followers, Relationship, foreign_key: :followed_id
+    has_many :reverse_relationships, through: [:followers, :follower]
     timestamps()
   end
 
