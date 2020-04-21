@@ -33,4 +33,8 @@ defmodule TwitterDemoWeb.UserView do
       introduction: user.introduction
     }
   end
+
+  def render("sign_up.json", %{user: user, jwt: jwt}) do
+    %{data: %{token: jwt, name: user.name}}
+  end
 end

@@ -80,7 +80,7 @@ export default class LoginPage extends React.Component <Props & RouteComponentPr
         "user": {
           "email": this.state.email,
           "password": this.state.password,
-          "username": this.state.username
+          "name": this.state.username
         }
       }
     }
@@ -92,11 +92,15 @@ export default class LoginPage extends React.Component <Props & RouteComponentPr
       body: JSON.stringify(credentials)
     })
     .then((res) => {
-      if(res.status == 200){
-        return res.json();
-      }else {
-        if(this.state.action == 'SignUp') {
+      if(this.state.action == 'SignUp') {
+        if(res.status == 201){
+          return res.json();
+        }else {
           throw new Error("Error creating user");
+        }
+      }else {
+        if(res.status == 200){
+          return res.json();
         } else {
           throw new Error("Error Logging in")
         }

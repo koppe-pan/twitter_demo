@@ -12,7 +12,8 @@ defmodule TwitterDemoWeb.ProfileController do
 
     profile = %{
       name: author.name,
-      following: TwitterDemo.Relationship.following?(user.id, author.id)
+      following: TwitterDemo.Relationship.following?(user.id, author.id),
+      introduction: author.introduction
     }
 
     render(conn, "get.json", profile: profile)
@@ -23,7 +24,8 @@ defmodule TwitterDemoWeb.ProfileController do
 
     profile = %{
       name: author.name,
-      following: false
+      following: false,
+      introduction: author.introduction
     }
 
     render(conn, "get.json", profile: profile)

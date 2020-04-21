@@ -13,10 +13,11 @@ defmodule TwitterDemoWeb.UserController do
 
   def create(conn, %{"user" => user_params}) do
     with {:ok, %User{} = user} <- Users.create_user(user_params) do
+      {:ok, jwt, _full_claims} = TwitterDemo.Guardian.encode_and_sign(user)
+
       conn
       |> put_status(:created)
-      |> put_resp_header("location", Routes.user_path(conn, :show, user))
-      |> render("show.json", user: user)
+      |> render("sign_up.json", user: user, jwt: jwt)
     end
   end
 
@@ -25,11 +26,25 @@ defmodule TwitterDemoWeb.UserController do
     render(conn, "show.json", user: user)
   end
 
+  def get(conn, %{"name" => name}) do
+    user = Users.get_by_name!(name)
+    render(conn, "show.json", user: user)
+  end
+
   def update(conn, %{"id" => id, "user" => user_params}) do
     user = Users.get_user!(id)
 
     with {:ok, %User{} = user} <- Users.update_user(user, user_params) do
       render(conn, "show.json", user: user)
+    end
+  end
+
+  def put(conn, %{"name" => name, "user" => user_params}) do
+    user = Users.get_by_name!(name)
+
+    with {:ok, %User{} = user} <- Users.update_user(user, user_params) do
+      {:ok, jwt, _full_claims} = TwitterDemo.Guardian.encode_and_sign(user)
+      render(conn, "sign_up.json", user: user, jwt: jwt)
     end
   end
 

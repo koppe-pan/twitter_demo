@@ -47,6 +47,14 @@ defmodule TwitterDemo.Tweets do
   """
   def get_tweet!(id), do: Repo.get!(Tweet, id)
 
+  def put_favorited!(tweet = %Tweet{}, name) do
+    with user_id <- Users.get_by_name!(name).id,
+         favorited <- TwitterDemo.Favo.favoring?(tweet.id, user_id) do
+      tweet
+      |> Map.put(:favorited, favorited)
+    end
+  end
+
   @doc """
   Creates a tweet.
 
@@ -112,11 +120,19 @@ defmodule TwitterDemo.Tweets do
     Tweet.changeset(tweet, %{})
   end
 
-  defp assoc_with_user(%Tweet{} = tweet, %User{} = author) do
-    tweet
-    |> Repo.preload(:user)
-    |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_assoc(:user, author)
-    |> Repo.update()
+  def inc_favorites(%Tweet{} = tweet) do
+    {1, [%Tweet{favorites: favorites}]} =
+      from(t in Tweet, where: t.id == ^tweet.id, select: [:favorites])
+      |> Repo.update_all(inc: [favorites: 1])
+
+    put_in(tweet.favorites, favorites)
+  end
+
+  def dec_favorites(%Tweet{} = tweet) do
+    {1, [%Tweet{favorites: favorites}]} =
+      from(t in Tweet, where: t.id == ^tweet.id, select: [:favorites])
+      |> Repo.update_all(inc: [favorites: -1])
+
+    put_in(tweet.favorites, favorites)
   end
 end

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
-import * as Showdown from "showdown";
 import Comment from '../components/Comment';
+import Tweet from '../components/Tweet';
 import Main from '../components/Main';
 
 type Props ={
@@ -23,15 +23,7 @@ class TweetPage extends React.Component<Props & RouteComponentProps<any>, State>
       comments: [],
       comment: ''
     }
-    this.converter = new Showdown.Converter({
-      tables: true,
-      simplifiedAutoLink: true,
-      strikethrough: true,
-      tasklists: true,
-      requireSpaceBeforeHeadingText: true
-    });
   }
-  converter: any;
   fetchTweet(url: string){
     let headers;
     if(localStorage.getItem("isLogin") && localStorage.getItem("isLogin") == "true"){
@@ -53,11 +45,17 @@ class TweetPage extends React.Component<Props & RouteComponentProps<any>, State>
     let url = "/api/tweets/"+ this.props.match.params.slug;
     let commentUrl = url + '/comments';
     let headers: any;
+    let tweetUrl;
+    if(localStorage.getItem("isLogin") && localStorage.getItem("isLogin") == "true"){
+      tweetUrl = url + '/?name=' + localStorage.getItem("username")
+    }else{
+      tweetUrl = url
+    }
 
-    Promise.all([this.fetchTweet(url), this.fetchTweet(commentUrl)]).then(
+    Promise.all([this.fetchTweet(tweetUrl), this.fetchTweet(commentUrl)]).then(
       (result) => {
         this.setState({
-          tweet: result[0].data.tweet,
+          tweet: result[0].data,
           author: result[0].data.author,
           comments: result[1].comments
         })
@@ -106,13 +104,14 @@ class TweetPage extends React.Component<Props & RouteComponentProps<any>, State>
     let author = this.state.author;
     return (
       <Main>
-        {tweet.description}
-        <button onClick={this.viewAuthor}> {author} </button>
-        {new Intl.DateTimeFormat('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: '2-digit'
-        }).format(new Date(tweet.createdAt ? tweet.createdAt : 0))}
+        <div style={{textAlign: "right"}}>
+          {new Intl.DateTimeFormat('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: '2-digit'
+          }).format(new Date(tweet.createdAt ? tweet.createdAt : 0))}
+        </div>
+        <Tweet key={tweet.slug} description={tweet.description} favorited={tweet.favorited} favoritesCount={tweet.favoritesCount} slug={tweet.slug} author={tweet.author}></Tweet>
         <hr />
           <hr className="horizontal-line" />
             {this.state.comments.length > 0 ?

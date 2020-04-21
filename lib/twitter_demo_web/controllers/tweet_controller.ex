@@ -6,14 +6,35 @@ defmodule TwitterDemoWeb.TweetController do
 
   action_fallback TwitterDemoWeb.FallbackController
 
-  def index(conn, %{"author" => author}) do
-    tweets = Tweets.list_tweets(%{name: author})
-    render(conn, "index.json", tweets: tweets)
+  def index(conn, %{"author" => author, "user" => username}) do
+    tweets =
+      Tweets.list_tweets(%{name: author})
+      |> Enum.map(fn tweet -> Tweets.put_favorited!(tweet, username) end)
+
+    render(conn, "index_with_favorited.json", tweets: tweets)
   end
 
-  def index(conn, %{"favorited" => favorited}) do
-    tweets = Tweets.list_tweets(%{name: favorited})
-    render(conn, "index.json", tweets: tweets)
+  def index(conn, %{"username" => username}) do
+    tweets =
+      Tweets.list_tweets()
+      |> Enum.map(fn tweet -> Tweets.put_favorited!(tweet, username) end)
+
+    render(conn, "index_with_favorited.json", tweets: tweets)
+  end
+
+  def feed(conn, %{"name" => name}) do
+    with {:ok, users} <-
+           TwitterDemo.Users.get_by_name!(name)
+           |> TwitterDemo.Repo.preload(:reverse_relationships)
+           |> Map.fetch(:reverse_relationships) do
+      tweets =
+        users
+        |> Enum.map(fn user -> Tweets.list_tweets(%{name: user.name}) end)
+        |> Enum.concat()
+        |> Enum.map(fn tweet -> Tweets.put_favorited!(tweet, name) end)
+
+      render(conn, "index_with_favorited.json", tweets: tweets)
+    end
   end
 
   def index(conn, _params) do
@@ -30,6 +51,14 @@ defmodule TwitterDemoWeb.TweetController do
     end
   end
 
+  def show(conn, %{"id" => id, "name" => name}) do
+    tweet =
+      Tweets.get_tweet!(id)
+      |> Tweets.put_favorited!(name)
+
+    render(conn, "show_with_favorited.json", tweet: tweet)
+  end
+
   def show(conn, %{"id" => id}) do
     tweet = Tweets.get_tweet!(id)
     render(conn, "show.json", tweet: tweet)
@@ -43,7 +72,24 @@ defmodule TwitterDemoWeb.TweetController do
     end
   end
 
-  def favo(conn, %{"id" => id}) do
+  def favo(conn, %{"id" => id, "name" => name}) do
+    with tweet <-
+           id
+           |> Tweets.get_tweet!()
+           |> Tweets.inc_favorites()
+           |> Tweets.put_favorited!(name) do
+      render(conn, "show_with_favorited.json", tweet: tweet)
+    end
+  end
+
+  def unfavo(conn, %{"id" => id, "name" => name}) do
+    with tweet <-
+           id
+           |> Tweets.get_tweet!()
+           |> Tweets.dec_favorites()
+           |> Tweets.put_favorited!(name) do
+      render(conn, "show_with_favorited.json", tweet: tweet)
+    end
   end
 
   def delete(conn, %{"id" => id}) do

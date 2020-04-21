@@ -9,7 +9,6 @@ defmodule TwitterDemo.Tweets.Tweet do
 
   schema "tweets" do
     field :description, :string
-    field :favorited, :boolean, default: false
     field :favorites, :integer, default: 0
     belongs_to :user, User
     has_many :comments, TwitterDemo.Comments.Comment
@@ -20,7 +19,7 @@ defmodule TwitterDemo.Tweets.Tweet do
   @doc false
   def changeset(tweet, attrs) do
     tweet
-    |> cast(attrs, [:description, :favorited, :favorites])
-    |> validate_required([:description, :favorited, :favorites])
+    |> cast(attrs, [:description, :favorites])
+    |> validate_required([:description, :favorites])
   end
 end

@@ -32,11 +32,8 @@ class Tweet extends React.Component<Props, State> {
   profileLink: string;
 
   favoriteTweet = (params: any) => {
-    let url = "/api/tweets/" + this.props.slug + '/favorite';
+    let url = "/api/tweets/" + this.props.slug + '/favorite/'+localStorage.getItem("username");
     let method;
-    let body = {
-        "name": localStorage.getItem("username")
-      }
     if(!this.state.favorited) {
       method = 'POST'
     }else{
@@ -47,15 +44,14 @@ class Tweet extends React.Component<Props, State> {
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer " + localStorage.getItem("token"),
-      },
-      body: JSON.stringify(body)
+      }
     })
     .then(res => res.json())
     .then(
       (res) => {
         this.setState({
-          favorited: res.tweet.favorited,
-          favoritesCount: res.tweet.favoritesCount,
+          favorited: res.favorited,
+          favoritesCount: res.favorites,
         })
       },
       (err) => {
@@ -68,9 +64,10 @@ class Tweet extends React.Component<Props, State> {
     return (
       <>
       {this.loggedOut()}
-      <button color={this.state.favorited ? "success": "light"} onClick={this.favoriteTweet}>
-        いいね
-      </button>{' '+ this.state.favoritesCount}
+      <button color={this.state.favorited ? "blue": "red"} onClick={this.favoriteTweet}>
+        {this.state.favorited ? "いいね解除": "いいね"}
+      </button>
+       いいね数：{this.state.favoritesCount}
       </>
     )
   }

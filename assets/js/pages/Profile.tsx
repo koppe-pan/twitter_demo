@@ -10,8 +10,8 @@ type Props = {
 type State = {
   profile: any,
   tweetsAuthor: any,
-  tweetsFavorites: any,
   isFollowing: boolean,
+  introduction: string,
 }
 
 class ProfilePage extends React.Component<Props & RouteComponentProps<any>, State> {
@@ -20,9 +20,9 @@ class ProfilePage extends React.Component<Props & RouteComponentProps<any>, Stat
 
     this.state = {
       profile: '',
-      tweetsFavorites: [],
       tweetsAuthor: [],
       isFollowing: false,
+      introduction: '',
     }
   }
 
@@ -50,16 +50,15 @@ class ProfilePage extends React.Component<Props & RouteComponentProps<any>, Stat
     }else{
       profileUrl = "/api/profiles/" + this.props.match.params.authorname ;
     }
-    let tweetsByProfileUrl = "/api/tweets/?author="+ this.props.match.params.authorname;
-    let favoritedTweetsUrl = "/api/tweets/?favorited="+ this.props.match.params.authorname;
+    let tweetsByProfileUrl = "/api/tweets/?author="+ this.props.match.params.authorname + "&user=" + localStorage.getItem("username") ;
 
-     Promise.all([this.fetchTweets(profileUrl), this.fetchTweets(tweetsByProfileUrl),this.fetchTweets(favoritedTweetsUrl)]).then((result) => {
+     Promise.all([this.fetchTweets(profileUrl), this.fetchTweets(tweetsByProfileUrl)]).then((result) => {
 
        this.setState({
          profile: result[0].profile.name,
-         tweetsFavorites: result[2].tweets,
          tweetsAuthor: result[1].tweets,
-         isFollowing: result[0].profile.following
+         isFollowing: result[0].profile.following,
+         introduction: result[0].profile.introduction
        });
 
      }).catch(err => {
@@ -105,6 +104,7 @@ class ProfilePage extends React.Component<Props & RouteComponentProps<any>, Stat
     return (
       <Main>
         <h1>{this.state.profile}</h1>
+        <h2>{this.state.introduction}</h2>
         <hr />
         {localStorage.getItem("isLogin")=== "true" ?
           <>
@@ -117,11 +117,6 @@ class ProfilePage extends React.Component<Props & RouteComponentProps<any>, Stat
           <p>Tweets</p>
           {this.state.tweetsAuthor.map((art: any, index: number) =>
             <Tweet key={art.slug} description={art.description} favorited={art.favorited} favoritesCount={art.favoritesCount} slug={art.slug} author={art.author}></Tweet>)}
-        </div>
-        <div>
-          <p>Favorites</p>
-          {this.state.tweetsFavorites.map((art: any, index: number) =>
-          <Tweet key={art.slug} description={art.description} favorited={art.favorited} favoritesCount={art.favoritesCount} slug={art.slug} author={art.author}></Tweet>)}
         </div>
       </Main>
     );

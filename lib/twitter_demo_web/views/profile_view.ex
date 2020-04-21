@@ -12,7 +12,8 @@ defmodule TwitterDemoWeb.ProfileView do
     %{
       profile: %{
         name: profile.name,
-        following: profile.following
+        following: profile.following,
+        introduction: profile.introduction
       }
     }
   end

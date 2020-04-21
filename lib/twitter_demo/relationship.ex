@@ -8,8 +8,8 @@ defmodule TwitterDemo.Relationship do
   alias TwitterDemo.Users.User
 
   schema "relationships" do
-    belongs_to :followed_user, User, foreign_key: :follower_id
-    belongs_to :follower, User, foreign_key: :followed_id
+    belongs_to :followed_user, User, foreign_key: :followed_id
+    belongs_to :follower, User, foreign_key: :follower_id
 
     timestamps()
   end
@@ -23,7 +23,7 @@ defmodule TwitterDemo.Relationship do
 
   def follow(signed_id, follow_user_id) do
     %Relationship{}
-    |> Relationship.changeset(%{follower_id: signed_id, followed_id: follow_user_id})
+    |> Relationship.changeset(%{followed_id: signed_id, follower_id: follow_user_id})
     |> Repo.insert()
   end
 
@@ -31,7 +31,8 @@ defmodule TwitterDemo.Relationship do
     relationship =
       Repo.all(
         from(re in Relationship,
-          where: re.follower_id == ^signed_id and re.followed_id == ^follow_user_id
+          where: re.followed_id == ^signed_id and re.follower_id == ^follow_user_id,
+          limit: 1
         )
       )
 
@@ -39,11 +40,10 @@ defmodule TwitterDemo.Relationship do
   end
 
   def unfollow(signed_id, follow_user_id) do
-    [relationship] =
-      Repo.all(
+    relationship =
+      Repo.one(
         from(re in Relationship,
-          where: re.follower_id == ^signed_id and re.followed_id == ^follow_user_id,
-          limit: 1
+          where: re.followed_id == ^signed_id and re.follower_id == ^follow_user_id
         )
       )
 

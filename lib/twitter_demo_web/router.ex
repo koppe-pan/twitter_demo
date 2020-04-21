@@ -22,17 +22,22 @@ defmodule TwitterDemoWeb.Router do
     post "/sign_in", SessionController, :sign_in
     resources "/users", UserController, only: [:create]
 
+    get "/tweets/feed", TweetController, :feed
+
     resources "/tweets", TweetController, except: [:new, :edit] do
       resources "/comments", CommentController, except: [:new, :edit]
     end
 
-    post "/tweets/:id/favorite", TweetController, :favo
+    post "/tweets/:id/favorite/:name", FavoController, :favo
+    delete "/tweets/:id/favorite/:name", FavoController, :unfavo
 
     get "/profiles/:authorname", ProfileController, :get
     post "/profiles/:authorname/follow/:followername", ProfileController, :follow
     delete "/profiles/:authorname/unfollow/:followername", ProfileController, :unfollow
 
     pipe_through :authenticated
+    put "/user/:name", UserController, :put
+    get "/user/:name", UserController, :get
     resources "/users", UserController, except: [:new, :create, :edit]
   end
 
