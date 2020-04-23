@@ -3,7 +3,6 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom'
 
 import Header from './components/Header'
 import HomePage from './pages/HomePage'
-import Counter from './components/Counter'
 import LoginPage from './pages/Login';
 import Profile from './pages/Profile';
 import TweetPage from './pages/TweetPage';
@@ -19,7 +18,6 @@ export default class Root extends React.Component {
         <BrowserRouter>
           <Switch>
             <Route exact path="/" component={HomePage} />
-            <Route path="/counter" component={ Counter } />
             <Route exact path="/login" component={LoginPage} />
             <Route path="/profile/:authorname" component={ Profile } />
             <Route path="/tweetpage/:slug" component={ TweetPage } />

@@ -47,9 +47,8 @@ defmodule TwitterDemo.Tweets do
   """
   def get_tweet!(id), do: Repo.get!(Tweet, id)
 
-  def put_favorited!(tweet = %Tweet{}, name) do
-    with user_id <- Users.get_by_name!(name).id,
-         favorited <- TwitterDemo.Favo.favoring?(tweet.id, user_id) do
+  def put_favorited!(tweet = %Tweet{}, user_id) do
+    with favorited <- TwitterDemo.Favo.favoring?(tweet.id, user_id) do
       tweet
       |> Map.put(:favorited, favorited)
     end
@@ -67,8 +66,8 @@ defmodule TwitterDemo.Tweets do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_tweet(attrs \\ %{}) do
-    Users.get_by_name!(attrs["author"])
+  def create_tweet(current_user, attrs \\ %{}) do
+    current_user
     |> Ecto.build_assoc(:tweets, %{description: attrs["description"]})
     |> Repo.insert()
   end

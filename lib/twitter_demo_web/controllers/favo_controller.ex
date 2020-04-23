@@ -7,19 +7,21 @@ defmodule TwitterDemoWeb.FavoController do
 
   action_fallback TwitterDemoWeb.FallbackController
 
-  def get(conn, %{"authorname" => authorname, "username" => username}) do
+  plug TwitterDemoWeb.Plugs.Auth, [optional: true] when action in [:show]
+  plug TwitterDemoWeb.Plugs.Auth when action in [:favo, :unfavo]
+
+  def show(%{assigns: %{current_user: current_user}} = conn, %{"authorname" => authorname}) do
     author = Users.get_by_name!(authorname)
-    user = Users.get_by_name!(username)
 
     profile = %{
       name: author.name,
-      following: TwitterDemo.Favo.favoring?(user.id, author.id)
+      following: TwitterDemo.Favo.favoring?(current_user.id, author.id)
     }
 
     render(conn, "get.json", profile: profile)
   end
 
-  def get(conn, %{"authorname" => authorname}) do
+  def show(conn, %{"authorname" => authorname}) do
     author = Users.get_by_name!(authorname)
 
     profile = %{
@@ -30,10 +32,8 @@ defmodule TwitterDemoWeb.FavoController do
     render(conn, "get.json", profile: profile)
   end
 
-  def favo(conn, %{"id" => tweet_id, "name" => favorername}) do
-    favorer = Users.get_by_name!(favorername)
-
-    with {:ok, %Favo{} = fav} <- Favo.favo(tweet_id, favorer.id) do
+  def favo(%{assigns: %{current_user: current_user}} = conn, %{"id" => tweet_id}) do
+    with {:ok, %Favo{} = fav} <- Favo.favo(tweet_id, current_user.id) do
       Tweets.get_tweet!(tweet_id)
       |> Tweets.inc_favorites()
 
@@ -43,10 +43,8 @@ defmodule TwitterDemoWeb.FavoController do
     end
   end
 
-  def unfavo(conn, %{"id" => tweet_id, "name" => favorername}) do
-    favorer = Users.get_by_name!(favorername)
-
-    with {:ok, %Favo{} = fav} <- Favo.unfavo(tweet_id, favorer.id) do
+  def unfavo(%{assigns: %{current_user: current_user}} = conn, %{"id" => tweet_id}) do
+    with {:ok, %Favo{} = fav} <- Favo.unfavo(tweet_id, current_user.id) do
       Tweets.get_tweet!(tweet_id)
       |> Tweets.dec_favorites()
 

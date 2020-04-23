@@ -20,22 +20,23 @@ defmodule TwitterDemoWeb.Router do
   scope "/api", TwitterDemoWeb do
     pipe_through :api
     post "/sign_in", SessionController, :sign_in
-    resources "/users", UserController, only: [:create]
+    post "/users", UserController, :create
 
     get "/tweets/feed", TweetController, :feed
 
-    resources "/tweets", TweetController, except: [:new, :edit] do
-      resources "/comments", CommentController, except: [:new, :edit]
+    resources "/tweets", TweetController, except: [:new, :update, :edit] do
+      resources "/comments", CommentController, except: [:new, :update, :edit]
     end
 
-    post "/tweets/:id/favorite/:name", FavoController, :favo
-    delete "/tweets/:id/favorite/:name", FavoController, :unfavo
+    get "/profiles/:authorname", ProfileController, :show
 
-    get "/profiles/:authorname", ProfileController, :get
-    post "/profiles/:authorname/follow/:followername", ProfileController, :follow
-    delete "/profiles/:authorname/unfollow/:followername", ProfileController, :unfollow
+    post "/tweets/:id/favorite", FavoController, :favo
+    delete "/tweets/:id/favorite", FavoController, :unfavo
+    post "/profiles/:authorname/follow", ProfileController, :follow
+    delete "/profiles/:authorname/unfollow", ProfileController, :unfollow
 
     pipe_through :authenticated
+
     put "/user/:name", UserController, :put
     get "/user/:name", UserController, :get
     resources "/users", UserController, except: [:new, :create, :edit]

@@ -46,11 +46,11 @@ class ProfilePage extends React.Component<Props & RouteComponentProps<any>, Stat
   componentDidMount() {
     let profileUrl
     if(localStorage.getItem("isLogin") && localStorage.getItem("isLogin") == "true"){
-      profileUrl = "/api/profiles/" + this.props.match.params.authorname + "/?username=" + localStorage.getItem("username") ;
+      profileUrl = "/api/profiles/" + this.props.match.params.authorname ;
     }else{
       profileUrl = "/api/profiles/" + this.props.match.params.authorname ;
     }
-    let tweetsByProfileUrl = "/api/tweets/?author="+ this.props.match.params.authorname + "&user=" + localStorage.getItem("username") ;
+    let tweetsByProfileUrl = "/api/tweets/?author="+ this.props.match.params.authorname;
 
      Promise.all([this.fetchTweets(profileUrl), this.fetchTweets(tweetsByProfileUrl)]).then((result) => {
 
@@ -73,10 +73,10 @@ class ProfilePage extends React.Component<Props & RouteComponentProps<any>, Stat
     let method;
     if(this.state.isFollowing){
       method = 'DELETE'
-      profileUrl = "/api/profiles/" + this.props.match.params.authorname + '/unfollow/'+ localStorage.getItem("username") ;
+      profileUrl = "/api/profiles/" + this.props.match.params.authorname + '/unfollow/';
     }else{
       method = 'POST'
-      profileUrl = "/api/profiles/" + this.props.match.params.authorname + '/follow/'+ localStorage.getItem("username") ;
+      profileUrl = "/api/profiles/" + this.props.match.params.authorname + '/follow/';
     }
     fetch(profileUrl, {
       method: method,

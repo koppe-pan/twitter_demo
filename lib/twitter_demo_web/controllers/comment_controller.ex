@@ -6,13 +6,21 @@ defmodule TwitterDemoWeb.CommentController do
 
   action_fallback TwitterDemoWeb.FallbackController
 
+  plug TwitterDemoWeb.Plugs.Auth, [optional: true] when action in [:index, :show]
+  plug TwitterDemoWeb.Plugs.Auth when action in [:create, :delete]
+
   def index(conn, %{"tweet_id" => id}) do
     comments = Comments.list_comments(%{tweet_id: id})
     render(conn, "index.json", comments: comments)
   end
 
-  def create(conn, %{"comment" => comment_params, "tweet_id" => tweet_id}) do
-    comment_params = Map.put(comment_params, "tweet_id", tweet_id)
+  def create(%{assigns: %{current_user: current_user}} = conn, %{
+        "comment" => comment_params,
+        "tweet_id" => tweet_id
+      }) do
+    comment_params =
+      Map.put(comment_params, "tweet_id", tweet_id)
+      |> Map.put("user_id", current_user.id)
 
     with {:ok, %Comment{} = comment} <- Comments.create_comment(comment_params) do
       conn

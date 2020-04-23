@@ -6,13 +6,13 @@ defmodule TwitterDemoWeb.SessionController do
   def sign_in(conn, %{"session" => %{"email" => email, "password" => password}}) do
     case User.find_and_confirm_password(email, password) do
       {:ok, user} ->
-        {:ok, jwt, _full_claims} = TwitterDemo.Guardian.encode_and_sign(user)
+        with {:ok, jwt, _claims} = TwitterDemo.Guardian.encode_and_sign(user) do
+          conn
+          |> render("sign_in.json", user: user, jwt: jwt)
+        end
 
-        # {:ok, claims} = TwitterDemo.Guardian.decode_and_verify(jwt)
-        # IO.inspect(claims)
-
-        conn
-        |> render("sign_in.json", user: user, jwt: jwt)
+      # {:ok, claims} = TwitterDemo.Guardian.decode_and_verify(jwt)
+      # IO.inspect(claims)
 
       {:error, _reason} ->
         conn

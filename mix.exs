@@ -20,7 +20,7 @@ defmodule TwitterDemo.MixProject do
   def application do
     [
       mod: {TwitterDemo.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :guardian]
     ]
   end
 

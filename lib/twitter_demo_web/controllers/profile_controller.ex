@@ -6,20 +6,22 @@ defmodule TwitterDemoWeb.ProfileController do
 
   action_fallback TwitterDemoWeb.FallbackController
 
-  def get(conn, %{"authorname" => authorname, "username" => username}) do
+  plug TwitterDemoWeb.Plugs.Auth, [optional: true] when action in [:index, :show]
+  plug TwitterDemoWeb.Plugs.Auth when action in [:follow, :unfollow]
+
+  def show(%{assigns: %{current_user: current_user}} = conn, %{"authorname" => authorname}) do
     author = Users.get_by_name!(authorname)
-    user = Users.get_by_name!(username)
 
     profile = %{
       name: author.name,
-      following: TwitterDemo.Relationship.following?(user.id, author.id),
+      following: TwitterDemo.Relationship.following?(current_user.id, author.id),
       introduction: author.introduction
     }
 
     render(conn, "get.json", profile: profile)
   end
 
-  def get(conn, %{"authorname" => authorname}) do
+  def show(conn, %{"authorname" => authorname}) do
     author = Users.get_by_name!(authorname)
 
     profile = %{
@@ -31,22 +33,20 @@ defmodule TwitterDemoWeb.ProfileController do
     render(conn, "get.json", profile: profile)
   end
 
-  def follow(conn, %{"authorname" => authorname, "followername" => followername}) do
-    follower = Users.get_by_name!(followername)
+  def follow(%{assigns: %{current_user: current_user}} = conn, %{"authorname" => authorname}) do
     user = Users.get_by_name!(authorname)
 
-    with {:ok, %Relationship{} = rel} <- Relationship.follow(follower.id, user.id) do
+    with {:ok, %Relationship{} = rel} <- Relationship.follow(current_user.id, user.id) do
       conn
       |> put_status(:created)
       |> render("follow.json", relationship: rel)
     end
   end
 
-  def unfollow(conn, %{"authorname" => authorname, "followername" => followername}) do
-    follower = Users.get_by_name!(followername)
+  def unfollow(%{assigns: %{current_user: current_user}} = conn, %{"authorname" => authorname}) do
     user = Users.get_by_name!(authorname)
 
-    with {:ok, %Relationship{}} <- Relationship.unfollow(follower.id, user.id) do
+    with {:ok, %Relationship{}} <- Relationship.unfollow(current_user.id, user.id) do
       send_resp(conn, :no_content, "")
     end
   end

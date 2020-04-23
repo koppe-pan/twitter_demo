@@ -22,6 +22,13 @@ config :twitter_demo, TwitterDemo.Guardian,
   issuer: "twitter_demo",
   secret_key: "PMe2czX4/ODOUj7VWO/WYsD9IUlGwMgZx8sZOKY0JbmvXgnfR22uOUiBhkbpjNIQ"
 
+# Configures GuardianDB
+# config :guardian, Guardian.DB,
+#  repo: TwitterDemo.Repo,
+#  schema_name: "guardian_tokens",
+#  token_types: ["refresh_token"],
+#  sweep_interval: 60
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

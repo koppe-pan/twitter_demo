@@ -32,7 +32,7 @@ class Tweet extends React.Component<Props, State> {
   profileLink: string;
 
   favoriteTweet = (params: any) => {
-    let url = "/api/tweets/" + this.props.slug + '/favorite/'+localStorage.getItem("username");
+    let url = "/api/tweets/" + this.props.slug + '/favorite';
     let method;
     if(!this.state.favorited) {
       method = 'POST'

@@ -45,14 +45,8 @@ class TweetPage extends React.Component<Props & RouteComponentProps<any>, State>
     let url = "/api/tweets/"+ this.props.match.params.slug;
     let commentUrl = url + '/comments';
     let headers: any;
-    let tweetUrl;
-    if(localStorage.getItem("isLogin") && localStorage.getItem("isLogin") == "true"){
-      tweetUrl = url + '/?name=' + localStorage.getItem("username")
-    }else{
-      tweetUrl = url
-    }
 
-    Promise.all([this.fetchTweet(tweetUrl), this.fetchTweet(commentUrl)]).then(
+    Promise.all([this.fetchTweet(url), this.fetchTweet(commentUrl)]).then(
       (result) => {
         this.setState({
           tweet: result[0].data,
@@ -77,8 +71,7 @@ class TweetPage extends React.Component<Props & RouteComponentProps<any>, State>
     let commentUrl = url + '/comments';
     let body = {
       "comment": {
-        "body": this.state.comment,
-        "author": localStorage.getItem("username")
+        "body": this.state.comment
       }
     }
     fetch(commentUrl, {

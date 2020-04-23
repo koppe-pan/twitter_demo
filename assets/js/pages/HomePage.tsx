@@ -34,7 +34,7 @@ class HomePage extends React.Component<Props, State> {
     let url, headers;
       e.persist()
     if(e.target.value == 'myfeed'){
-      url ="/api/tweets/feed/?name="+ localStorage.getItem("username");
+      url ="/api/tweets/feed";
       headers = {
         "Content-Type": "application/json",
         "Authorization": "Bearer "+localStorage.getItem("token")

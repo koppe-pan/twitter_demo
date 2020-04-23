@@ -24,7 +24,7 @@ class NewTweet extends React.Component<Props & RouteComponentProps, State> {
     let tweetData = {
       "tweet": {
         "description": this.state.description,
-        "author": localStorage.getItem("username")
+        "is_creator": true
       }
     }
     fetch("/api/tweets", {

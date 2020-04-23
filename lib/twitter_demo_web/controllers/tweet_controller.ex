@@ -6,35 +6,25 @@ defmodule TwitterDemoWeb.TweetController do
 
   action_fallback TwitterDemoWeb.FallbackController
 
-  def index(conn, %{"author" => author, "user" => username}) do
+  plug TwitterDemoWeb.Plugs.Auth, [optional: true] when action in [:index, :show]
+  plug TwitterDemoWeb.Plugs.Auth when action in [:create, :delete, :feed]
+
+  def index(%{assigns: %{current_user: current_user}} = conn, %{
+        "author" => author
+      }) do
     tweets =
       Tweets.list_tweets(%{name: author})
-      |> Enum.map(fn tweet -> Tweets.put_favorited!(tweet, username) end)
+      |> Enum.map(fn tweet -> Tweets.put_favorited!(tweet, current_user.id) end)
 
     render(conn, "index_with_favorited.json", tweets: tweets)
   end
 
-  def index(conn, %{"username" => username}) do
+  def index(%{assigns: %{current_user: current_user}} = conn) do
     tweets =
       Tweets.list_tweets()
-      |> Enum.map(fn tweet -> Tweets.put_favorited!(tweet, username) end)
+      |> Enum.map(fn tweet -> Tweets.put_favorited!(tweet, current_user.id) end)
 
     render(conn, "index_with_favorited.json", tweets: tweets)
-  end
-
-  def feed(conn, %{"name" => name}) do
-    with {:ok, users} <-
-           TwitterDemo.Users.get_by_name!(name)
-           |> TwitterDemo.Repo.preload(:reverse_relationships)
-           |> Map.fetch(:reverse_relationships) do
-      tweets =
-        users
-        |> Enum.map(fn user -> Tweets.list_tweets(%{name: user.name}) end)
-        |> Enum.concat()
-        |> Enum.map(fn tweet -> Tweets.put_favorited!(tweet, name) end)
-
-      render(conn, "index_with_favorited.json", tweets: tweets)
-    end
   end
 
   def index(conn, _params) do
@@ -42,8 +32,23 @@ defmodule TwitterDemoWeb.TweetController do
     render(conn, "index.json", tweets: tweets)
   end
 
-  def create(conn, %{"tweet" => tweet_params}) do
-    with {:ok, %Tweet{} = tweet} <- Tweets.create_tweet(tweet_params) do
+  def feed(%{assigns: %{current_user: current_user}} = conn, _params) do
+    with {:ok, users} <-
+           current_user
+           |> TwitterDemo.Repo.preload(:reverse_relationships)
+           |> Map.fetch(:reverse_relationships) do
+      tweets =
+        users
+        |> Enum.map(fn user -> Tweets.list_tweets(%{name: user.name}) end)
+        |> Enum.concat()
+        |> Enum.map(fn tweet -> Tweets.put_favorited!(tweet, current_user.id) end)
+
+      render(conn, "index_with_favorited.json", tweets: tweets)
+    end
+  end
+
+  def create(%{assigns: %{current_user: current_user}} = conn, %{"tweet" => tweet_params}) do
+    with {:ok, %Tweet{} = tweet} <- Tweets.create_tweet(current_user, tweet_params) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", Routes.tweet_path(conn, :show, tweet))
@@ -51,10 +56,10 @@ defmodule TwitterDemoWeb.TweetController do
     end
   end
 
-  def show(conn, %{"id" => id, "name" => name}) do
+  def show(%{assigns: %{current_user: current_user}} = conn, %{"id" => id}) do
     tweet =
       Tweets.get_tweet!(id)
-      |> Tweets.put_favorited!(name)
+      |> Tweets.put_favorited!(current_user.id)
 
     render(conn, "show_with_favorited.json", tweet: tweet)
   end
@@ -72,22 +77,22 @@ defmodule TwitterDemoWeb.TweetController do
     end
   end
 
-  def favo(conn, %{"id" => id, "name" => name}) do
+  def favo(%{assigns: %{current_user: current_user}} = conn, %{"id" => id}) do
     with tweet <-
            id
            |> Tweets.get_tweet!()
            |> Tweets.inc_favorites()
-           |> Tweets.put_favorited!(name) do
+           |> Tweets.put_favorited!(current_user.id) do
       render(conn, "show_with_favorited.json", tweet: tweet)
     end
   end
 
-  def unfavo(conn, %{"id" => id, "name" => name}) do
+  def unfavo(%{assigns: %{current_user: current_user}} = conn, %{"id" => id}) do
     with tweet <-
            id
            |> Tweets.get_tweet!()
            |> Tweets.dec_favorites()
-           |> Tweets.put_favorited!(name) do
+           |> Tweets.put_favorited!(current_user.id) do
       render(conn, "show_with_favorited.json", tweet: tweet)
     end
   end
