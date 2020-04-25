@@ -15,5 +15,11 @@ defmodule TwitterDemo.Comments.Comment do
     comment
     |> cast(attrs, [:body])
     |> validate_required([:body])
+    |> validate_changeset
+  end
+
+  defp validate_changeset(comment) do
+    comment
+    |> validate_length(:body, max: 116)
   end
 end

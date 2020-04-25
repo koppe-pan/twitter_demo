@@ -25,21 +25,8 @@ defmodule TwitterDemoWeb.UserController do
     render(conn, "show.json", user: user)
   end
 
-  def get(conn, %{"name" => name}) do
-    user = Users.get_by_name!(name)
-    render(conn, "show.json", user: user)
-  end
-
   def update(conn, %{"id" => id, "user" => user_params}) do
     user = Users.get_user!(id)
-
-    with {:ok, %User{} = user} <- Users.update_user(user, user_params) do
-      render(conn, "show.json", user: user)
-    end
-  end
-
-  def put(conn, %{"name" => name, "user" => user_params}) do
-    user = Users.get_by_name!(name)
 
     with {:ok, %User{} = user} <- Users.update_user(user, user_params),
          {:ok, jwt, _claims} = TwitterDemo.Guardian.encode_and_sign(user) do

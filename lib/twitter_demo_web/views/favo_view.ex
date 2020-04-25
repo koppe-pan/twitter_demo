@@ -1,6 +1,5 @@
 defmodule TwitterDemoWeb.FavoView do
   use TwitterDemoWeb, :view
-  alias TwitterDemoWeb.FavoView
   alias TwitterDemo.Tweets
   alias TwitterDemo.Favo
 
@@ -11,22 +10,6 @@ defmodule TwitterDemoWeb.FavoView do
     %{
       favorited: favorited,
       favorites: favorites
-    }
-  end
-
-  def render("get.json", %{profile: profile}) do
-    %{
-      profile: %{
-        name: profile.name,
-        following: profile.following
-      }
-    }
-  end
-
-  def render("prof.json", %{follower: follower}) do
-    %{
-      username: follower.name,
-      slug: follower.id
     }
   end
 end

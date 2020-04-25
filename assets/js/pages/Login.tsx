@@ -62,6 +62,7 @@ export default class LoginPage extends React.Component <Props & RouteComponentPr
     localStorage.removeItem("username");
     localStorage.removeItem("isLogin");
     localStorage.removeItem("email");
+    localStorage.removeItem("userid");
   }
 
   login= () => {
@@ -109,9 +110,10 @@ export default class LoginPage extends React.Component <Props & RouteComponentPr
     .then(
       (result) => {
         localStorage.setItem("token", result.data.token);
-        localStorage.setItem("username", result.data.name);
+        localStorage.setItem("username", result.data.user.name);
         localStorage.setItem("isLogin", "true");
-        localStorage.setItem("email", result.data.email);
+        localStorage.setItem("userid", result.data.user.id);
+        localStorage.setItem("email", result.data.user.email);
 
         this.event = new CustomEvent('loggedIn', {
           detail: true,

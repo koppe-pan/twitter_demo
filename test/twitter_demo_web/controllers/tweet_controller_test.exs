@@ -1,37 +1,28 @@
 defmodule TwitterDemoWeb.TweetControllerTest do
   use TwitterDemoWeb.ConnCase
 
-  alias TwitterDemo.Tweets
-  alias TwitterDemo.Tweets.Tweet
-
   @user_attrs %{
     name: "some name",
     email: "some @email",
     password: "S0me p@ssw0rd"
   }
-  @create_attrs %{
-    :description => "some description",
-    "author" => "some name",
-    :favorited => true,
-    :favorites => 42
-  }
-  @update_attrs %{
-    :description => "some updated description",
-    "author" => "some name",
-    :favorited => false,
-    :favorites => 43
-  }
-  @invalid_attrs %{
-    :description => nil,
-    "author" => "some name",
-    :favorited => nil,
-    :favorites => nil
-  }
 
-  def fixture(:tweet) do
-    {:ok, tweet} = Tweets.create_tweet(@create_attrs)
-    tweet
-  end
+  #  @follower_attrs %{
+  #    name: "some follower",
+  #    email: "some @follower email",
+  #    password: "S0me f0ll0wer p@ssw0rd"
+  #  }
+
+  @create_attrs %{
+    description: "some description"
+  }
+  #  @update_attrs %{
+  #    description: "some updated description",
+  #    favorited: false
+  #  }
+  @invalid_attrs %{
+    description: nil
+  }
 
   setup %{conn: conn} do
     conn =
@@ -53,7 +44,14 @@ defmodule TwitterDemoWeb.TweetControllerTest do
 
   describe "index" do
     test "lists all tweets", %{conn: conn} do
-      conn = get(conn, Routes.tweet_path(conn, :index), name: "some name")
+      conn = get(conn, Routes.tweet_path(conn, :index))
+      assert json_response(conn, 200)["tweets"] == []
+    end
+  end
+
+  describe "feed" do
+    test "lists feed tweets", %{conn: conn} do
+      conn = get(conn, Routes.tweet_path(conn, :feed))
       assert json_response(conn, 200)["tweets"] == []
     end
   end
@@ -61,14 +59,16 @@ defmodule TwitterDemoWeb.TweetControllerTest do
   describe "create tweet" do
     test "renders tweet when data is valid", %{conn: conn} do
       conn = post(conn, Routes.tweet_path(conn, :create), tweet: @create_attrs)
-      assert %{"slug" => id} = json_response(conn, 201)["data"]
+      assert %{"slug" => id, "createdAt" => createdAt} = json_response(conn, 201)["data"]
 
       conn = get(conn, Routes.tweet_path(conn, :show, id))
 
       assert %{
                "slug" => id,
                "description" => "some description",
-               "favorites" => 0
+               "favorited" => false,
+               "favorites" => 0,
+               "createdAt" => createdAt
              } = json_response(conn, 200)["data"]
     end
 
@@ -79,45 +79,43 @@ defmodule TwitterDemoWeb.TweetControllerTest do
     end
   end
 
-  describe "update tweet" do
-    setup [:create_tweet]
+  #  describe "update tweet" do
+  #    setup [:create_tweet]
+  #
+  #    test "renders tweet when data is valid", %{
+  #      conn: conn,
+  #      tweet: %Tweet{id: id, favorites: favorites} = tweet
+  #    } do
+  #      conn = put(conn, Routes.tweet_path(conn, :update, tweet), tweet: @update_attrs)
+  #
+  #      assert %{"slug" => ^id} = json_response(conn, 200)["data"]
+  #
+  #      conn = get(conn, Routes.tweet_path(conn, :show, id))
+  #
+  #      assert %{
+  #               "slug" => id,
+  #               "description" => "some updated description",
+  #               "favorites" => favorites
+  #             } = json_response(conn, 200)["data"]
+  #    end
+  #
+  #    test "renders errors when data is invalid", %{conn: conn, tweet: tweet} do
+  #      conn = put(conn, Routes.tweet_path(conn, :update, tweet), tweet: @invalid_attrs)
+  #
+  #      assert json_response(conn, 422)["errors"] != %{}
+  #    end
+  #  end
 
-    test "renders tweet when data is valid", %{conn: conn, tweet: %Tweet{id: id} = tweet} do
-      conn = put(conn, Routes.tweet_path(conn, :update, tweet), tweet: @update_attrs)
-
-      assert %{"slug" => ^id} = json_response(conn, 200)["data"]
-
-      conn = get(conn, Routes.tweet_path(conn, :show, id))
-
-      assert %{
-               "slug" => id,
-               "description" => "some updated description",
-               "favorites" => 43
-             } = json_response(conn, 200)["data"]
-    end
-
-    test "renders errors when data is invalid", %{conn: conn, tweet: tweet} do
-      conn = put(conn, Routes.tweet_path(conn, :update, tweet), tweet: @invalid_attrs)
-
-      assert json_response(conn, 422)["errors"] != %{}
-    end
-  end
-
-  describe "delete tweet" do
-    setup [:create_tweet]
-
-    test "deletes chosen tweet", %{conn: conn, tweet: tweet} do
-      conn = delete(conn, Routes.tweet_path(conn, :delete, tweet))
-      assert response(conn, 204)
-
-      assert_error_sent 404, fn ->
-        get(conn, Routes.tweet_path(conn, :show, tweet))
-      end
-    end
-  end
-
-  defp create_tweet(_) do
-    tweet = fixture(:tweet)
-    {:ok, tweet: tweet}
-  end
+  #  describe "delete tweet" do
+  #    setup [:create_tweet]
+  #
+  #    test "deletes chosen tweet", %{conn: conn, tweet: tweet} do
+  #      conn = delete(conn, Routes.tweet_path(conn, :delete, tweet))
+  #      assert response(conn, 204)
+  #
+  #      assert_error_sent 404, fn ->
+  #        get(conn, Routes.tweet_path(conn, :show, tweet))
+  #      end
+  #    end
+  #  end
 end

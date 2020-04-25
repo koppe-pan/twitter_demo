@@ -38,7 +38,7 @@ class SettingsPage extends React.Component <Props, State> {
   };
 
   componentDidMount() {
-    let url = "/api/user/" + localStorage.getItem("username");
+    let url = "/api/users/" + localStorage.getItem("userid");
 
     fetch(url, {
       method: 'GET',
@@ -76,7 +76,7 @@ class SettingsPage extends React.Component <Props, State> {
         }
       }
     }
-    fetch("/api/user/" + localStorage.getItem("username"), {
+    fetch("/api/users/" + localStorage.getItem("userid"), {
       method: 'PUT',
       headers: {
         "Content-Type": "application/json",

@@ -9,17 +9,18 @@ defmodule TwitterDemoWeb.TweetController do
   plug TwitterDemoWeb.Plugs.Auth, [optional: true] when action in [:index, :show]
   plug TwitterDemoWeb.Plugs.Auth when action in [:create, :delete, :feed]
 
-  def index(%{assigns: %{current_user: current_user}} = conn, %{
-        "author" => author
-      }) do
+  def index(
+        %{assigns: %{current_user: current_user}} = conn,
+        %{"author" => author_name} = _params
+      ) do
     tweets =
-      Tweets.list_tweets(%{name: author})
+      Tweets.list_tweets(%{name: author_name})
       |> Enum.map(fn tweet -> Tweets.put_favorited!(tweet, current_user.id) end)
 
     render(conn, "index_with_favorited.json", tweets: tweets)
   end
 
-  def index(%{assigns: %{current_user: current_user}} = conn) do
+  def index(%{assigns: %{current_user: current_user}} = conn, _params) do
     tweets =
       Tweets.list_tweets()
       |> Enum.map(fn tweet -> Tweets.put_favorited!(tweet, current_user.id) end)
@@ -35,8 +36,8 @@ defmodule TwitterDemoWeb.TweetController do
   def feed(%{assigns: %{current_user: current_user}} = conn, _params) do
     with {:ok, users} <-
            current_user
-           |> TwitterDemo.Repo.preload(:reverse_relationships)
-           |> Map.fetch(:reverse_relationships) do
+           |> TwitterDemo.Repo.preload(:relationships)
+           |> Map.fetch(:relationships) do
       tweets =
         users
         |> Enum.map(fn user -> Tweets.list_tweets(%{name: user.name}) end)

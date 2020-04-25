@@ -27,7 +27,7 @@ defmodule TwitterDemoWeb.CommentController do
       |> put_status(:created)
       |> put_resp_header(
         "location",
-        Routes.tweet_comment_path(conn, :show, tweet_id, comment)
+        Routes.comment_path(conn, :show, tweet_id, comment)
       )
       |> render("show.json", comment: comment)
     end
@@ -38,7 +38,7 @@ defmodule TwitterDemoWeb.CommentController do
     render(conn, "show.json", comment: comment)
   end
 
-  def update(conn, %{"id" => id, "comment" => comment_params}) do
+  def update(conn, %{"tweet_id" => id, "comment" => comment_params}) do
     comment = Comments.get_comment!(id)
 
     with {:ok, %Comment{} = comment} <- Comments.update_comment(comment, comment_params) do

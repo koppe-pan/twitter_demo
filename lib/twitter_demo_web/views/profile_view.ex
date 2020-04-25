@@ -4,8 +4,8 @@ defmodule TwitterDemoWeb.ProfileView do
   alias TwitterDemo.Users
 
   def render("follow.json", %{relationship: rel}) do
-    follower = Users.get_user!(rel.follower_id)
-    ProfileView.render("prof.json", follower: follower)
+    followed = Users.get_user!(rel.followed_id)
+    ProfileView.render("prof.json", followed: followed)
   end
 
   def render("get.json", %{profile: profile}) do
@@ -18,10 +18,10 @@ defmodule TwitterDemoWeb.ProfileView do
     }
   end
 
-  def render("prof.json", %{follower: follower}) do
+  def render("prof.json", %{followed: followed}) do
     %{
-      username: follower.name,
-      slug: follower.id
+      username: followed.name,
+      slug: followed.id
     }
   end
 end

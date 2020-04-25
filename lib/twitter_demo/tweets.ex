@@ -7,7 +7,6 @@ defmodule TwitterDemo.Tweets do
   alias TwitterDemo.Repo
 
   alias TwitterDemo.Tweets.Tweet
-  alias TwitterDemo.Users.User
   alias TwitterDemo.Users
 
   @doc """
@@ -68,7 +67,8 @@ defmodule TwitterDemo.Tweets do
   """
   def create_tweet(current_user, attrs \\ %{}) do
     current_user
-    |> Ecto.build_assoc(:tweets, %{description: attrs["description"]})
+    |> Ecto.build_assoc(:tweets)
+    |> Tweet.changeset(attrs)
     |> Repo.insert()
   end
 

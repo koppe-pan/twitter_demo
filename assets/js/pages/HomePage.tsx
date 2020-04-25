@@ -41,8 +41,15 @@ class HomePage extends React.Component<Props, State> {
       }
     } else {
       url = "/api/tweets";
-      headers = {
-        "Content-Type": "application/json",
+      if( localStorage.getItem("isLogin") === "true" ){
+        headers = {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer "+localStorage.getItem("token")
+        }
+      }else{
+        headers = {
+          "Content-Type": "application/json",
+        }
       }
     }
     fetch(url, {

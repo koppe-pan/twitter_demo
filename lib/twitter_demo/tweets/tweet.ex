@@ -2,10 +2,7 @@ defmodule TwitterDemo.Tweets.Tweet do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias TwitterDemo.Repo
-  alias TwitterDemo.Tweets.Tweet
   alias TwitterDemo.Users.User
-  alias TwitterDemo.Users
 
   schema "tweets" do
     field :description, :string
@@ -19,7 +16,13 @@ defmodule TwitterDemo.Tweets.Tweet do
   @doc false
   def changeset(tweet, attrs) do
     tweet
-    |> cast(attrs, [:description, :favorites])
-    |> validate_required([:description, :favorites])
+    |> cast(attrs, [:description])
+    |> validate_required([:description])
+    |> validate_changeset
+  end
+
+  defp validate_changeset(tweet) do
+    tweet
+    |> validate_length(:description, max: 140)
   end
 end

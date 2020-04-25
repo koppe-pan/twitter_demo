@@ -38,7 +38,6 @@ defmodule TwitterDemo.Users.User do
     |> validate_length(:email, min: 5, max: 255)
     |> validate_format(:email, ~r/@/)
     |> unique_constraint(:email)
-    |> unique_constraint(:name)
     |> validate_length(:password, min: 8)
     |> validate_format(:password, ~r/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*/,
       message: "Must include at least one lowercase letter, one uppercase letter, and one digit"

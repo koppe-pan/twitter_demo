@@ -57,12 +57,10 @@ defmodule TwitterDemo.Comments do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_comment(
-        %{"user_id" => user_id, "tweet_id" => tweet_id, "body" => body} = _attrs \\ %{}
-      ) do
+  def create_comment(%{"user_id" => user_id, "tweet_id" => tweet_id} = attrs \\ %{}) do
     TwitterDemo.Tweets.get_tweet!(tweet_id)
     |> Ecto.build_assoc(:comments, user_id: user_id)
-    |> Comment.changeset(%{body: body})
+    |> Comment.changeset(attrs)
     |> Repo.insert()
   end
 

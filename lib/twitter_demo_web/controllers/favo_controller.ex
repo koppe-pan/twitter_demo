@@ -1,36 +1,12 @@
 defmodule TwitterDemoWeb.FavoController do
   use TwitterDemoWeb, :controller
 
-  alias TwitterDemo.Users
   alias TwitterDemo.Tweets
   alias TwitterDemo.Favo
 
   action_fallback TwitterDemoWeb.FallbackController
 
-  plug TwitterDemoWeb.Plugs.Auth, [optional: true] when action in [:show]
   plug TwitterDemoWeb.Plugs.Auth when action in [:favo, :unfavo]
-
-  def show(%{assigns: %{current_user: current_user}} = conn, %{"authorname" => authorname}) do
-    author = Users.get_by_name!(authorname)
-
-    profile = %{
-      name: author.name,
-      following: TwitterDemo.Favo.favoring?(current_user.id, author.id)
-    }
-
-    render(conn, "get.json", profile: profile)
-  end
-
-  def show(conn, %{"authorname" => authorname}) do
-    author = Users.get_by_name!(authorname)
-
-    profile = %{
-      name: author.name,
-      following: false
-    }
-
-    render(conn, "get.json", profile: profile)
-  end
 
   def favo(%{assigns: %{current_user: current_user}} = conn, %{"id" => tweet_id}) do
     with {:ok, %Favo{} = fav} <- Favo.favo(tweet_id, current_user.id) do

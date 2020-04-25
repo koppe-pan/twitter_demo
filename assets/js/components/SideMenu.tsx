@@ -44,7 +44,7 @@ class SideMenu extends React.Component<any, any> {
   renderMenuItem(menu: any) {
     return (
     <>
-      <Link replace className="sidemenu-link" to={menu.path} >{menu.title}</Link>
+      <Link to={menu.path} >{menu.title}</Link>
     </>
     )
   }
